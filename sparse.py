@@ -4,48 +4,79 @@ class sparse:
         self.mm = mm        
         self.data = []
         self.k = k
+        self.n = 1
         self.size = int(nn[k - 1] * mm[k])
         for i in range(self.size):
             self.data.append(x)
         self.head = 0
+        
     def insert(self,newkey):
+        if (self.n == self.nn[self.k]):
+            self.expand()
+            
         low = self.head
         high = (self.size + self.head - 1) 
+        m = int((low + high) / 2) 
         while low <= high:
-            m = (low + high) >> 1
+            
+            m = int((low + high) / 2) 
+
             if self.data[m % self.size] < newkey:
                 low = m + 1
             elif self.data[m % self.size] > newkey:
                 high = m - 1
             else:
-                print("Key already exists:", newkey)
                 return
-        print("initial position for insertion:", m)
-        if self.data[m % self.size] < newkey and ( m + 1) % self.size != self.head:
-            m += 1
-        
+
+        if self.data[m % self.size] < newkey:
+            m = (m + 1) % self.size
         if self.isDummy(m):
             self.data[m % self.size] = newkey
+            if (m % self.size) == self.head:
+                self.head = (self.head + 1) % self.size
+            self.n += 1
         else:
             c = 0
-            while not self.isDummy(m + c + 1):
+            while not self.isDummy(m + c +1):
                 c += 1
-            while c > 0:
+            changeHead = True
+            if(m+c+1) % self.size == self.head:
+                self.head = (self.head + 1) % self.size
+                changeHead
+            
+            while c >= 0:
+                
                 self.data[(m + c + 1) % self.size] = self.data[(m + c) % self.size]
+                if (  (m+c) % self.size == self.head ) and changeHead:
+                    self.head = (self.head + 1) % self.size
+                    changeHead = False
                 c -= 1
             self.data[(m) % self.size] = newkey
-            if (self.head >= m % self.size) and (self.head < (m + c + 1) % self.size):
-                self.head = (self.head + 1) % self.size
+            self.n += 1
 
-    def isDummy(self,pos):
-        # η τελευταια θεση δεν ειναι ποτε dummy
-        if pos % self.size  == self.head - 1:
-            return False
-        # αν η θεση ειναι dummy, το στοιχειο στην θεση αυτη ειναι το ιδιο με το επομενο
-        return  self.data[pos % self.size] == self.data[(pos + 1) % self.size]
 
+    def expand(self):
+        self.k += 1
+        newm  = int(self.nn[self.k -1] * self.mm[self.k-1])
+        newdata = []
+        q = int(newm/self.n)
+        r = newm % self.nn[self.k-1]
+        for i in range(self.size):
+            if int(i*r/self.k) < int((i+1)*r/self.k):
+                for j in range(q + 1):
+                    newdata.append(self.data[(self.head+i) % self.size])
+            else:
+                for j in range(q):
+                    newdata.append(self.data[(self.head +i) % self.size])
+        self.data = newdata
+        self.size = newm
+        self.head = 0
+        
     def delete(self,oldkey):
-        print("Deleting key:", oldkey)
+        print("Deleting key:", oldkey)   
+
+    def shrink(self):
+        print("Shrinking data structure")
 
     def binarySearch(self,key):
         low = self.head
@@ -61,6 +92,7 @@ class sparse:
                     mid += 1
                 return mid % self.size
         return -1
+
     def print_data(self):
         row = "["
         for i in range(self.size):
@@ -72,9 +104,10 @@ class sparse:
                 row += ","
         row += " ]"
         print(row)
-    
-    def expand(self):
-        print("Expanding data structure")
-       
-    def shrink(self):
-        print("Shrinking data structure")
+
+    def isDummy(self,pos):
+        # η τελευταια θεση δεν ειναι ποτε dummy
+        if ( pos +1 ) % self.size  == self.head :
+            return False
+        # αν η θεση ειναι dummy, το στοιχειο στην θεση αυτη ειναι το ιδιο με το επομενο
+        return  self.data[pos % self.size] == self.data[(pos + 1) % self.size]    
