@@ -71,14 +71,15 @@ class sparse:
         self.data = newdata
         self.size = newm
         self.head = 0
-        
+
     def delete(self,oldkey):
         print("Deleting key:", oldkey)   
 
     def shrink(self):
         print("Shrinking data structure")
 
-    def binarySearch(self,key):
+        
+    def binarySearch(self,key):    
         low = self.head
         high = (self.size + self.head - 1) 
         while low <= high:
@@ -88,10 +89,9 @@ class sparse:
             elif self.data[mid % self.size] > key:
                 high = mid - 1
             else:
-                while mid < self.head + self.size and self.data[mid % self.size] == self.data[(mid + 1) % self.size]:
-                    mid += 1
-                return mid % self.size
-        return -1
+                print(f"Key {key} found at index {mid % self.size}")
+                return 
+        print(f"Key {key} not found. It should be at position {mid % self.size}")
 
     def print_data(self):
         row = "["
